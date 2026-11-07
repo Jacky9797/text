@@ -11,8 +11,20 @@
     <!-- KaTeX JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <style>
+        html {
+            font-size: 18px;
+        }
+        body {
+            font-size: 1.125rem;
+        }
+        button, input {
+            font-size: inherit;
+        }
+        #q-svg-container text {
+            font-size: 17px;
+        }
         .math-line {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -47,7 +59,7 @@
             justify-content: center;
             color: #1d4ed8;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 800;
             transition: all 0.2s ease;
         }
@@ -69,6 +81,41 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+    <!-- Chapter Selection -->
+    <div id="chapter-menu" class="fixed inset-0 z-[100] bg-teal-950/95 flex items-center justify-center p-6">
+        <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-8">
+            <div class="text-center mb-8">
+                <p class="text-teal-600 font-bold mb-2">互動式數學講義</p>
+                <h1 class="text-4xl font-black text-teal-950 mb-3">請選擇學習章節</h1>
+                <p class="text-lg text-slate-600">本講義共有五個章節，目前可進入「三角形的認識與分類」。</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <button onclick="enterChapter()" class="min-h-40 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl p-5 text-left shadow-lg transition transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-teal-300">
+                    <span class="block text-sm font-bold text-teal-100 mb-3">章節 1</span>
+                    <span class="block text-xl font-black leading-snug">三角形的認識與分類</span>
+                    <span class="block mt-4 text-sm font-bold">開始學習 →</span>
+                </button>
+                <button onclick="showUnavailableChapter(2)" class="min-h-40 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl p-5 text-left border-2 border-slate-200 transition">
+                    <span class="block text-sm font-bold mb-3">章節 2</span>
+                    <span class="block text-xl font-black">尚未開放</span>
+                </button>
+                <button onclick="showUnavailableChapter(3)" class="min-h-40 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl p-5 text-left border-2 border-slate-200 transition">
+                    <span class="block text-sm font-bold mb-3">章節 3</span>
+                    <span class="block text-xl font-black">尚未開放</span>
+                </button>
+                <button onclick="showUnavailableChapter(4)" class="min-h-40 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl p-5 text-left border-2 border-slate-200 transition">
+                    <span class="block text-sm font-bold mb-3">章節 4</span>
+                    <span class="block text-xl font-black">尚未開放</span>
+                </button>
+                <button onclick="showUnavailableChapter(5)" class="min-h-40 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl p-5 text-left border-2 border-slate-200 transition">
+                    <span class="block text-sm font-bold mb-3">章節 5</span>
+                    <span class="block text-xl font-black">尚未開放</span>
+                </button>
+            </div>
+            <p id="chapter-message" class="min-h-8 mt-5 text-center text-lg font-bold text-amber-700" aria-live="polite"></p>
+        </div>
+    </div>
+
     <!-- Header / Navigation Bar -->
     <header class="bg-teal-800 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
@@ -481,9 +528,18 @@
             document.getElementById("max-score-display").textContent = maxScore;
             renderNavTabs();
             renderCurrentQuestion();
-            startTimer();
             if (typeof renderMath === 'function') renderMath();
         });
+
+        function enterChapter() {
+            document.getElementById("chapter-menu").classList.add("hidden");
+            startTimer();
+        }
+
+        function showUnavailableChapter(chapterNumber) {
+            document.getElementById("chapter-message").textContent =
+                `章節 ${chapterNumber} 尚未加入，目前請先選擇章節 1。`;
+        }
 
         // Stopwatch Timer function
         function startTimer() {
@@ -507,7 +563,7 @@
             navContainer.innerHTML = "";
             questions.forEach((q, idx) => {
                 const btn = document.createElement("button");
-                btn.className = `px-3 py-1.5 rounded-lg text-sm font-semibold transition shrink-0 ${idx === currentQuestionIndex ? 'bg-white text-teal-900 shadow' : 'bg-teal-900/60 hover:bg-teal-700 text-white'}`;
+                btn.className = `px-3 py-1.5 rounded-lg text-base font-semibold transition shrink-0 ${idx === currentQuestionIndex ? 'bg-white text-teal-900 shadow' : 'bg-teal-900/60 hover:bg-teal-700 text-white'}`;
                 btn.textContent = `題目 ${idx + 1}`;
                 btn.onclick = () => switchQuestion(idx);
                 navContainer.appendChild(btn);
@@ -544,10 +600,10 @@
                 
                 let headerHtml = `
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-md ${status.completed ? 'bg-emerald-100 text-emerald-800' : 'bg-teal-100 text-teal-800'}">
+                        <span class="text-base font-bold px-2.5 py-1 rounded-md ${status.completed ? 'bg-emerald-100 text-emerald-800' : 'bg-teal-100 text-teal-800'}">
                             步驟 ${stepIdx + 1}
                         </span>
-                        ${status.completed ? '<span class="text-emerald-600 font-bold text-sm flex items-center">✔ 完成</span>' : ''}
+                        ${status.completed ? '<span class="text-emerald-600 font-bold text-base flex items-center">✔ 完成</span>' : ''}
                     </div>
                     <p class="text-slate-700 font-medium mb-4">${step.instruction}</p>
                 `;
@@ -568,12 +624,12 @@
 
                     optionsHtml = `
                         <div class="mt-6 pt-4 border-t border-slate-100">
-                            <div class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">點擊選項填入空格：</div>
+                            <div class="text-base font-bold text-slate-500 mb-2 tracking-wider">點擊選項填入空格：</div>
                             <div class="flex flex-wrap gap-2 mb-4">
                                 ${optBtns}
                             </div>
                             <div class="flex items-center justify-between">
-                                <div id="feedback-${currentQuestionIndex}-${stepIdx}" class="text-sm font-bold"></div>
+                                <div id="feedback-${currentQuestionIndex}-${stepIdx}" class="text-base font-bold"></div>
                                 <button onclick="checkAnswer(${currentQuestionIndex}, ${stepIdx})" 
                                     class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2 rounded-xl shadow transition transform active:scale-95">
                                     檢查答案
