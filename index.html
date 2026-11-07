@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式數學講義 - 三角形的認識與分類</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        .math-line {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            line-height: 1.8;
+            margin: 14px 0;
+        }
+        .math, .math-display {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+        .math-display {
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+        .katex {
+            font-size: 1.12em;
+        }
+        .slot {
+            min-width: 58px;
+            min-height: 46px;
+            padding: 4px 12px;
+            border: 3px solid #93c5fd;
+            border-radius: 12px;
+            background: #eff6ff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #1d4ed8;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+        }
+        .slot.active {
+            animation: pulseSlot 1s infinite;
+            background: #dbeafe;
+            border-color: #2563eb;
+        }
+        .slot.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+        @keyframes pulseSlot {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
+            70% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+    <!-- Header / Navigation Bar -->
+    <header class="bg-teal-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <!-- Left: Unit Name & Nav Tabs -->
+            <div class="flex items-center space-x-3 overflow-x-auto py-1">
+                <span class="bg-teal-900 px-3 py-1.5 rounded-lg text-sm font-bold tracking-wider shrink-0 shadow-inner">
+                    單元：三角形與分類
+                </span>
+                <nav class="flex space-x-2" id="nav-tabs">
+                    <!-- Dynamic Question Tabs injected via JS -->
+                </nav>
+            </div>
+            
+            <!-- Right: Student Name, Score, Timer & Record Button -->
+            <div class="flex items-center space-x-3 shrink-0">
+                <div class="flex items-center bg-teal-900/90 rounded-lg px-2.5 py-1 text-sm shadow-inner">
+                    <label for="student-name" class="text-teal-200 font-bold mr-1.5 text-xs shrink-0">👤 作答者：</label>
+                    <input type="text" id="student-name" placeholder="請輸入姓名" 
+                        class="bg-teal-950/70 text-white text-sm px-2 py-1 rounded border border-teal-700/60 focus:outline-none focus:border-amber-400 w-28 placeholder:text-teal-500">
+                </div>
+                <div class="bg-teal-900 px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center space-x-1 shadow-inner">
+                    <span>得分：</span>
+                    <span id="score-display" class="text-amber-300 font-bold text-lg">0</span>
+                    <span>/ <span id="max-score-display">16</span></span>
+                </div>
+                <div class="bg-teal-900 px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center space-x-1 shadow-inner">
+                    <span>⏱️ 時間：</span>
+                    <span id="timer-display" class="text-cyan-300 font-mono font-bold text-lg">00:00</span>
+                </div>
+                <button onclick="openRecordModal()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-teal-950 font-bold px-3 py-1.5 rounded-lg text-sm shadow transition flex items-center space-x-1">
+                    <span>📋</span>
+                    <span>作答紀錄</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Question Info & SVG Graphic (Sticky) -->
+        <section class="md:col-span-5 bg-white rounded-2xl shadow-lg p-6 md:sticky md:top-24 border border-teal-100">
+            <div class="mb-4 inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                【題型判定】：幾何（三角形認識與分類）
+            </div>
+            <h2 id="q-title" class="text-xl font-bold text-teal-900 mb-2">載入中...</h2>
+            <p id="q-desc" class="text-slate-600 mb-6 leading-relaxed">請依序完成右側各步驟的互動解題練習。</p>
+            
+            <!-- SVG Graphic Container -->
+            <div id="q-svg-container" class="bg-teal-50/50 rounded-xl p-4 flex items-center justify-center border border-teal-100 min-h-[220px]">
+                <!-- SVG injected via JS -->
+            </div>
+        </section>
+
+        <!-- Right Column: Step-by-Step Unlock Flow -->
+        <section class="md:col-span-7 space-y-6" id="steps-container">
+            <!-- Steps injected via JS -->
+        </section>
+
+    </main>
+
+    <!-- Detailed Record Modal -->
+    <div id="record-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 text-left space-y-5 transform transition-all scale-95 opacity-0 duration-300" id="record-modal-content">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+                    <span>📋</span>
+                    <span>學習作答紀錄</span>
+                </h3>
+                <button onclick="closeRecordModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl text-center">
+                <div>
+                    <div class="text-xs text-slate-400 font-bold mb-0.5">作答學生</div>
+                    <div id="record-student-name" class="text-base font-extrabold text-teal-800">未填寫</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-bold mb-0.5">目前得分</div>
+                    <div id="record-score" class="text-base font-extrabold text-amber-600">0 / 16</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-bold mb-0.5">累積用時</div>
+                    <div id="record-time" class="text-base font-extrabold text-cyan-600">00:00</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">各題作答進度明細</div>
+                <div id="record-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    <!-- Dynamic Question Log Items -->
+                </div>
+            </div>
+
+            <div class="pt-2 flex space-x-3">
+                <button onclick="closeRecordModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl shadow transition active:scale-95">
+                    返回作答
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div id="completion-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center space-y-6 transform transition-all scale-95 opacity-0 duration-300" id="completion-modal-content">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner">
+                🎉
+            </div>
+            <h3 class="text-2xl font-black text-slate-800">太棒了！完成所有練習！</h3>
+            <p class="text-slate-600">你已經順利解開本單元的所有 8 道三角形練習題。</p>
+            <div class="bg-slate-100 rounded-2xl p-4 flex justify-around text-center">
+                <div>
+                    <div class="text-xs text-slate-500 font-bold mb-1">最終得分</div>
+                    <div id="final-score" class="text-3xl font-extrabold text-teal-700">0 / 16</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 font-bold mb-1">總花費時間</div>
+                    <div id="final-time" class="text-3xl font-extrabold text-cyan-700">00:00</div>
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="resetAll()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition transform active:scale-95">
+                    再做一次
+                </button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-4 rounded-xl shadow-md transition transform active:scale-95">
+                    關閉視窗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // 8 Question Datasets based on textbook pages
+        const questions = [
+            {
+                id: 1,
+                title: "題目 1：三角形部位名稱與數量",
+                desc: "觀察左側三角形圖形與箭頭指示，學習並填出三角形的<mark class='bg-amber-100 text-amber-900 px-1 rounded'>頂點</mark>、<mark class='bg-amber-100 text-amber-900 px-1 rounded'>邊</mark>與<mark class='bg-amber-100 text-amber-900 px-1 rounded'>角</mark>的名稱及數量。",
+                svg: `
+                    <svg viewBox="0 0 300 220" class="w-full h-48">
+                        <polygon points="150,30 40,180 260,180" fill="#d1fae5" stroke="#0d9488" stroke-width="4" stroke-linejoin="round"/>
+                        <line x1="150" y1="30" x2="110" y2="70" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow)"/>
+                        <circle cx="150" cy="30" r="5" fill="#f59e0b"/>
+                        <text x="75" y="80" fill="#b45309" font-weight="bold" font-size="14">頂點</text>
+
+                        <line x1="95" y1="105" x2="50" y2="105" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrow)"/>
+                        <text x="35" y="95" fill="#1d4ed8" font-weight="bold" font-size="14">邊</text>
+
+                        <line x1="240" y1="160" x2="275" y2="130" stroke="#ec4899" stroke-width="3" marker-end="url(#arrow)"/>
+                        <text x="255" y="115" fill="#be185d" font-weight="bold" font-size="14">角</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：點擊選項填入箭頭指向的最上方部位名稱。",
+                        htmlContent: `<span>上方尖端處是：</span><span class="slot" data-answer="頂點"></span>`,
+                        options: ["邊", "頂點", "角"],
+                        correct: ["頂點"]
+                    },
+                    {
+                        instruction: "步驟 2：點擊選項填入箭頭指向的外圍斜向部位名稱。",
+                        htmlContent: `<span>外圍斜向是：</span><span class="slot" data-answer="邊"></span>`,
+                        options: ["角", "頂點", "邊"],
+                        correct: ["邊"]
+                    },
+                    {
+                        instruction: "步驟 3：點擊選項填入箭頭指向的內部角落部位名稱。",
+                        htmlContent: `<span>內部角落是：</span><span class="slot" data-answer="角"></span>`,
+                        options: ["頂點", "角", "邊"],
+                        correct: ["角"]
+                    },
+                    {
+                        instruction: "步驟 4：三角形有幾個角、幾條邊和幾個頂點？（依序填入數字）",
+                        htmlContent: `<div class="math-line"><span>三角形有</span><span class="slot" data-answer="3"></span><span>個角、</span><span class="slot" data-answer="3"></span><span>條邊和</span><span class="slot" data-answer="3"></span><span>個頂點。</span></div>`,
+                        options: ["1", "2", "3", "4"],
+                        correct: ["3", "3", "3"]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "題目 2：非三角形判斷",
+                desc: "觀察給定的圖形，判斷它們是否為<mark class='bg-teal-100 text-teal-900 px-1 rounded'>三角形</mark>（三條直線圍成的封閉圖形）。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <!-- Curved Shape 1 -->
+                        <path d="M 30,150 Q 80,20 120,150 Z" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+                        <text x="75" y="175" font-weight="bold" fill="#78350f">圖 1</text>
+
+                        <!-- Heart Shape 2 -->
+                        <path d="M 220,130 C 220,70 170,70 170,110 C 170,70 120,70 120,110 C 120,140 170,170 170,180 C 170,170 220,140 220,130 Z" fill="#fbcfe8" stroke="#db2777" stroke-width="3"/>
+                        <text x="170" y="195" font-weight="bold" fill="#9d174d">圖 2</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：圖 1 的邊是彎曲的弧線，請問圖 1 是三角形嗎？",
+                        htmlContent: `<span>圖 1 （填入 ✔ 或 ×）：</span><span class="slot" data-answer="×"></span>`,
+                        options: ["✔", "×"],
+                        correct: ["×"]
+                    },
+                    {
+                        instruction: "步驟 2：圖 2 是心形曲線，請問圖 2 是三角形嗎？",
+                        htmlContent: `<span>圖 2 （填入 ✔ 或 ×）：</span><span class="slot" data-answer="×"></span>`,
+                        options: ["✔", "×"],
+                        correct: ["×"]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "題目 3：以邊長分類（甲圖）",
+                desc: "觀察下方甲三角形（邊長分別為 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>5公分</mark>、<mark class='bg-teal-100 text-teal-900 px-1 rounded'>4公分</mark>、<mark class='bg-teal-100 text-teal-900 px-1 rounded'>4公分</mark>），回答下列問題。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <polygon points="150,30 50,170 250,170" fill="#bae6fd" stroke="#0284c7" stroke-width="4" stroke-linejoin="round"/>
+                        <text x="150" y="25" fill="#0369a1" font-weight="bold" font-size="16" text-anchor="middle">甲</text>
+                        <text x="90" y="95" fill="#0369a1" font-weight="bold" font-size="14">5 公分</text>
+                        <text x="180" y="95" fill="#0369a1" font-weight="bold" font-size="14">4 公分</text>
+                        <text x="135" y="188" fill="#0369a1" font-weight="bold" font-size="14">4 公分</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：甲三角形的三條邊長中，有幾條邊一樣長？",
+                        htmlContent: `<span>甲三角形有</span><span class="slot" data-answer="2"></span><span>條邊一樣長。</span>`,
+                        options: ["1", "2", "3"],
+                        correct: ["2"]
+                    },
+                    {
+                        instruction: "步驟 2：像甲這樣有兩條邊一樣長的三角形叫做什麼三角形？",
+                        htmlContent: `<span>這樣的三角形叫做</span><span class="slot" data-answer="等腰"></span><span>三角形。</span>`,
+                        options: ["正", "等腰", "不等邊"],
+                        correct: ["等腰"]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "題目 4：以邊長分類（乙圖）",
+                desc: "觀察下方乙三角形（邊長分別為 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>3公分</mark>、<mark class='bg-teal-100 text-teal-900 px-1 rounded'>5公分</mark>、<mark class='bg-teal-100 text-teal-900 px-1 rounded'>4公分</mark>），回答下列問題。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <polygon points="60,40 60,170 240,170" fill="#fbcfe8" stroke="#be185d" stroke-width="4" stroke-linejoin="round"/>
+                        <text x="110" y="120" fill="#9d174d" font-weight="bold" font-size="16">乙</text>
+                        <text x="25" y="110" fill="#9d174d" font-weight="bold" font-size="14">3 公分</text>
+                        <text x="160" y="95" fill="#9d174d" font-weight="bold" font-size="14">5 公分</text>
+                        <text x="130" y="190" fill="#9d174d" font-weight="bold" font-size="14">4 公分</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：乙三角形的三條邊長中，有幾條邊一樣長？",
+                        htmlContent: `<span>乙三角形邊長都不一樣，一樣長的邊有</span><span class="slot" data-answer="0"></span><span>條。</span>`,
+                        options: ["0", "2", "3"],
+                        correct: ["0"]
+                    },
+                    {
+                        instruction: "步驟 2：乙三角形是否為等腰三角形？",
+                        htmlContent: `<span>乙三角形（填入 是 或 不是）：</span><span class="slot" data-answer="不是"></span><span>等腰三角形。</span>`,
+                        options: ["是", "不是"],
+                        correct: ["不是"]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "題目 5：以角度與邊長判定（丙圖與丁圖）",
+                desc: "觀察丙三角形（頂角 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>110°</mark>，底角皆為 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>35°</mark>，兩腰 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>3公分</mark>）與丁三角形，挑出等腰三角形。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <!-- Triangle Ping -->
+                        <polygon points="60,30 110,170 40,170" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+                        <text x="70" y="110" font-weight="bold" fill="#166534">丙</text>
+                        <text x="15" y="100" font-size="12" fill="#166534">3公分</text>
+                        <text x="75" y="100" font-size="12" fill="#166534">3公分</text>
+                        
+                        <!-- Triangle Ding -->
+                        <polygon points="160,160 220,80 280,160" fill="#ffedd5" stroke="#c2410c" stroke-width="3"/>
+                        <text x="220" y="130" font-weight="bold" fill="#9a3412">丁</text>
+                        <text x="210" y="75" font-size="12" fill="#9a3412">95°</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：丙三角形有兩條邊皆為 3 公分，丙是等腰三角形嗎？",
+                        htmlContent: `<span>丙三角形（填 是 或 不是）：</span><span class="slot" data-answer="是"></span>`,
+                        options: ["是", "不是"],
+                        correct: ["是"]
+                    },
+                    {
+                        instruction: "步驟 2：丙與丁中，哪些是等腰三角形？（填入代號）",
+                        htmlContent: `<span>等腰三角形是：</span><span class="slot" data-answer="丙"></span>`,
+                        options: ["丙", "丁", "丙和丁"],
+                        correct: ["丙"]
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "題目 6：正三角形概念與判定",
+                desc: "觀察三條邊長皆為 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>5公分</mark> 且三個角皆為 <mark class='bg-teal-100 text-teal-900 px-1 rounded'>60度</mark> 的三角形。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <polygon points="150,30 60,170 240,170" fill="#fef08a" stroke="#ca8a04" stroke-width="4" stroke-linejoin="round"/>
+                        <text x="90" y="95" fill="#854d0e" font-weight="bold" font-size="14">5公分</text>
+                        <text x="175" y="95" fill="#854d0e" font-weight="bold" font-size="14">5公分</text>
+                        <text x="135" y="190" fill="#854d0e" font-weight="bold" font-size="14">5公分</text>
+                        <text x="140" y="60" fill="#854d0e" font-size="12">60°</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：三條邊都一樣長的三角形叫做什麼三角形？",
+                        htmlContent: `<span>三條邊都一樣長叫做</span><span class="slot" data-answer="正"></span><span>三角形。</span>`,
+                        options: ["等腰", "正", "直角"],
+                        correct: ["正"]
+                    },
+                    {
+                        instruction: "步驟 2：正三角形又可以稱為幾邊相等的三角形？",
+                        htmlContent: `<span>正三角形又叫作</span><span class="slot" data-answer="三邊相等"></span><span>三角形。</span>`,
+                        options: ["兩邊相等", "三邊相等"],
+                        correct: ["三邊相等"]
+                    }
+                ]
+            },
+            {
+                id: 7,
+                title: "題目 7：長方形對摺展開展開實驗",
+                desc: "拿出一張長方形紙對摺後，沿著虛線剪下展開，觀察展開後的圖形特徵。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <rect x="30" y="40" width="100" height="130" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+                        <line x1="30" y1="40" x2="130" y2="170" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="135" y="175" fill="#dc2626" font-size="20">✂</text>
+                        
+                        <!-- Unfolded Result Triangle -->
+                        <polygon points="220,40 170,170 270,170" fill="#ddd6fe" stroke="#6d28d9" stroke-width="3"/>
+                        <text x="210" y="120" fill="#5b21b6" font-weight="bold" font-size="16">展開圖</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：把對摺紙沿虛線剪下並攤開後，左右兩邊會對稱相等，攤開後會是什麼圖形？",
+                        htmlContent: `<span>攤開後的圖形是</span><span class="slot" data-answer="等腰"></span><span>三角形。</span>`,
+                        options: ["正", "等腰", "長方形"],
+                        correct: ["等腰"]
+                    }
+                ]
+            },
+            {
+                id: 8,
+                title: "題目 8：全等三角形的概念",
+                desc: "當兩個三角形能<mark class='bg-teal-100 text-teal-900 px-1 rounded'>完全疊合</mark>（形狀和大小都相同）時，我們稱這兩個三角形全等。",
+                svg: `
+                    <svg viewBox="0 0 300 200" class="w-full h-44">
+                        <polygon points="80,40 30,160 120,160" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+                        <text x="65" y="110" font-weight="bold" fill="#065f46">圖 A</text>
+
+                        <polygon points="230,40 180,160 270,160" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+                        <text x="215" y="110" font-weight="bold" fill="#065f46">圖 B</text>
+                    </svg>
+                `,
+                steps: [
+                    {
+                        instruction: "步驟 1：若兩個三角形重疊在一起時完全重合，稱為？",
+                        htmlContent: `<span>稱這兩個三角形為</span><span class="slot" data-answer="全等"></span><span>三角形。</span>`,
+                        options: ["相似", "全等", "等腰"],
+                        correct: ["全等"]
+                    },
+                    {
+                        instruction: "步驟 2：全等三角形疊合在一起的邊與角分別叫作什麼？",
+                        htmlContent: `<span>疊合的邊叫</span><span class="slot" data-answer="對應邊"></span><span>，疊合的角叫</span><span class="slot" data-answer="對應角"></span><span>。</span>`,
+                        options: ["對應邊", "等長邊", "對應角", "相同角"],
+                        correct: ["對應邊", "對應角"]
+                    }
+                ]
+            }
+        ];
+
+        // Global State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let maxScore = questions.reduce((acc, q) => acc + q.steps.length, 0);
+        let elapsedTime = 0; // Stopwatch timer in seconds
+        let timerInterval = null;
+        let isCompleted = false;
+
+        // User step progress state
+        let userState = questions.map(q => ({
+            stepStatus: q.steps.map(s => ({
+                unlocked: false,
+                completed: false,
+                scored: false,
+                failed: false,
+                slotsData: new Array(s.correct.length).fill("")
+            }))
+        }));
+        userState[0].stepStatus[0].unlocked = true;
+
+        // Initialize on DOM load
+        window.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("max-score-display").textContent = maxScore;
+            renderNavTabs();
+            renderCurrentQuestion();
+            startTimer();
+            if (typeof renderMath === 'function') renderMath();
+        });
+
+        // Stopwatch Timer function
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (isCompleted) return;
+                elapsedTime++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const secs = (elapsedTime % 60).toString().padStart(2, '0');
+            document.getElementById("timer-display").textContent = `${mins}:${secs}`;
+        }
+
+        // Render Nav Tabs
+        function renderNavTabs() {
+            const navContainer = document.getElementById("nav-tabs");
+            navContainer.innerHTML = "";
+            questions.forEach((q, idx) => {
+                const btn = document.createElement("button");
+                btn.className = `px-3 py-1.5 rounded-lg text-sm font-semibold transition shrink-0 ${idx === currentQuestionIndex ? 'bg-white text-teal-900 shadow' : 'bg-teal-900/60 hover:bg-teal-700 text-white'}`;
+                btn.textContent = `題目 ${idx + 1}`;
+                btn.onclick = () => switchQuestion(idx);
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function switchQuestion(idx) {
+            currentQuestionIndex = idx;
+            renderNavTabs();
+            renderCurrentQuestion();
+        }
+
+        // Render Current Question Detail
+        function renderCurrentQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById("q-title").textContent = q.title;
+            document.getElementById("q-desc").innerHTML = q.desc;
+            document.getElementById("q-svg-container").innerHTML = q.svg;
+            renderSteps();
+        }
+
+        // Render Steps Flow
+        function renderSteps() {
+            const container = document.getElementById("steps-container");
+            container.innerHTML = "";
+            const qState = userState[currentQuestionIndex];
+
+            questions[currentQuestionIndex].steps.forEach((step, stepIdx) => {
+                const status = qState.stepStatus[stepIdx];
+                if (!status.unlocked) return;
+
+                const stepCard = document.createElement("div");
+                stepCard.className = `bg-white rounded-2xl shadow-md p-6 border transition-all duration-300 ${status.completed ? 'border-emerald-200 bg-emerald-50/20' : 'border-teal-100'}`;
+                
+                let headerHtml = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md ${status.completed ? 'bg-emerald-100 text-emerald-800' : 'bg-teal-100 text-teal-800'}">
+                            步驟 ${stepIdx + 1}
+                        </span>
+                        ${status.completed ? '<span class="text-emerald-600 font-bold text-sm flex items-center">✔ 完成</span>' : ''}
+                    </div>
+                    <p class="text-slate-700 font-medium mb-4">${step.instruction}</p>
+                `;
+
+                let contentHtml = buildStepContentHtml(step, status, stepIdx);
+
+                let optionsHtml = "";
+                if (!status.completed) {
+                    if (!step._shuffledOptions) {
+                        step._shuffledOptions = [...step.options].sort(() => Math.random() - 0.5);
+                    }
+                    let optBtns = step._shuffledOptions.map(opt => `
+                        <button onclick="handleOptionClick(${currentQuestionIndex}, ${stepIdx}, '${opt}')" 
+                            class="bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-400 text-blue-900 font-bold px-4 py-2.5 rounded-xl shadow-sm transition transform active:scale-95 text-lg">
+                            ${opt}
+                        </button>
+                    `).join("");
+
+                    optionsHtml = `
+                        <div class="mt-6 pt-4 border-t border-slate-100">
+                            <div class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">點擊選項填入空格：</div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${optBtns}
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div id="feedback-${currentQuestionIndex}-${stepIdx}" class="text-sm font-bold"></div>
+                                <button onclick="checkAnswer(${currentQuestionIndex}, ${stepIdx})" 
+                                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2 rounded-xl shadow transition transform active:scale-95">
+                                    檢查答案
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                stepCard.innerHTML = headerHtml + contentHtml + optionsHtml;
+                container.appendChild(stepCard);
+            });
+
+            if (typeof renderMath === 'function') renderMath();
+        }
+
+        function buildStepContentHtml(step, status, stepIdx) {
+            let slotCounter = 0;
+            let tempHtml = step.htmlContent.replace(/<span class="slot"[^>]*><\/span>/g, (match) => {
+                const val = status.slotsData[slotCounter] || "";
+                const sIdx = slotCounter;
+                slotCounter++;
+                let isActive = false;
+                if (!status.completed) {
+                    const firstEmpty = status.slotsData.findIndex(s => s === "");
+                    if (firstEmpty === sIdx || (firstEmpty === -1 && sIdx === status.slotsData.length - 1 && val !== "")) {
+                        isActive = true;
+                    }
+                }
+                const activeClass = isActive ? "active" : "";
+                const correctClass = status.completed ? "correct" : "";
+                return `<span class="slot ${activeClass} ${correctClass}" onclick="handleSlotClick(${currentQuestionIndex}, ${stepIdx}, ${sIdx})">${val}</span>`;
+            });
+            return `<div class="my-3">${tempHtml}</div>`;
+        }
+
+        // Handle Option Click
+        function handleOptionClick(qIdx, stepIdx, opt) {
+            const qState = userState[qIdx];
+            const status = qState.stepStatus[stepIdx];
+            if (status.completed) return;
+
+            const emptyIdx = status.slotsData.findIndex(s => s === "");
+            if (emptyIdx !== -1) {
+                status.slotsData[emptyIdx] = opt;
+                renderSteps();
+            }
+        }
+
+        // Handle Slot Click (Clear slot)
+        function handleSlotClick(qIdx, stepIdx, sIdx) {
+            const qState = userState[qIdx];
+            const status = qState.stepStatus[stepIdx];
+            if (status.completed) return;
+
+            status.slotsData[sIdx] = "";
+            renderSteps();
+        }
+
+        // Check Answer Logic
+        function checkAnswer(qIdx, stepIdx) {
+            const q = questions[qIdx];
+            const step = q.steps[stepIdx];
+            const qState = userState[qIdx];
+            const status = qState.stepStatus[stepIdx];
+            const feedbackEl = document.getElementById(`feedback-${qIdx}-${stepIdx}`);
+
+            if (status.slotsData.some(s => s === "")) {
+                feedbackEl.textContent = "請填滿所有空格";
+                feedbackEl.className = "text-sm font-bold text-amber-600";
+                return;
+            }
+
+            let isCorrect = true;
+            for (let i = 0; i < step.correct.length; i++) {
+                if (status.slotsData[i] !== step.correct[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                status.completed = true;
+                feedbackEl.textContent = "✔ 答對了！";
+                feedbackEl.className = "text-sm font-bold text-emerald-600";
+
+                if (!status.scored && !status.failed) {
+                    status.scored = true;
+                    score++;
+                    document.getElementById("score-display").textContent = score;
+                }
+
+                // Unlock next step or auto-advance question
+                if (stepIdx + 1 < q.steps.length) {
+                    qState.stepStatus[stepIdx + 1].unlocked = true;
+                    setTimeout(() => {
+                        renderSteps();
+                    }, 400);
+                } else {
+                    // Question All Steps Completed
+                    if (qIdx + 1 < questions.length) {
+                        userState[qIdx + 1].stepStatus[0].unlocked = true;
+                        setTimeout(() => {
+                            switchQuestion(qIdx + 1);
+                        }, 800);
+                    } else {
+                        setTimeout(() => {
+                            renderSteps();
+                            checkAllCompleted();
+                        }, 400);
+                    }
+                }
+
+            } else {
+                status.failed = true;
+                feedbackEl.textContent = "再想想看喔！請重新訂正。";
+                feedbackEl.className = "text-sm font-bold text-rose-600";
+            }
+        }
+
+        // Check if all questions completed
+        function checkAllCompleted() {
+            let allDone = true;
+            for (let i = 0; i < questions.length; i++) {
+                for (let j = 0; j < questions[i].steps.length; j++) {
+                    if (!userState[i].stepStatus[j].completed) {
+                        allDone = false;
+                        break;
+                    }
+                }
+                if (!allDone) break;
+            }
+
+            if (allDone && !isCompleted) {
+                isCompleted = true;
+                clearInterval(timerInterval);
+                triggerCompletion();
+            }
+        }
+
+        function triggerCompletion() {
+            const modal = document.getElementById("completion-modal");
+            const modalContent = document.getElementById("completion-modal-content");
+            const finalScoreEl = document.getElementById("final-score");
+            const finalTimeEl = document.getElementById("final-time");
+
+            finalScoreEl.textContent = `${score} / ${maxScore}`;
+            
+            const mins = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const secs = (elapsedTime % 60).toString().padStart(2, '0');
+            finalTimeEl.textContent = `${mins}:${secs}`;
+
+            modal.classList.remove("hidden");
+            setTimeout(() => {
+                modalContent.classList.remove("scale-95", "opacity-0");
+                modalContent.classList.add("scale-100", "opacity-100");
+            }, 10);
+        }
+
+        function closeModal() {
+            document.getElementById("completion-modal").classList.add("hidden");
+        }
+
+        // Answer Record Modal Functions
+        function openRecordModal() {
+            const modal = document.getElementById("record-modal");
+            const modalContent = document.getElementById("record-modal-content");
+            const nameInput = document.getElementById("student-name").value.trim();
+            
+            document.getElementById("record-student-name").textContent = nameInput || "未填寫";
+            document.getElementById("record-score").textContent = `${score} / ${maxScore}`;
+            
+            const mins = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const secs = (elapsedTime % 60).toString().padStart(2, '0');
+            document.getElementById("record-time").textContent = `${mins}:${secs}`;
+
+            // Render detailed log per question
+            const listContainer = document.getElementById("record-list");
+            listContainer.innerHTML = "";
+
+            questions.forEach((q, idx) => {
+                const qState = userState[idx];
+                const totalSteps = q.steps.length;
+                const completedSteps = qState.stepStatus.filter(s => s.completed).length;
+                const earnedPoints = qState.stepStatus.filter(s => s.scored).length;
+
+                let statusBadge = "";
+                if (completedSteps === totalSteps) {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">✔ 全部完成 (${earnedPoints}/${totalSteps}分)</span>`;
+                } else if (completedSteps > 0) {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">⏳ 作答中 (${completedSteps}/${totalSteps}步)</span>`;
+                } else {
+                    statusBadge = `<span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded-full">未開始</span>`;
+                }
+
+                const item = document.createElement("div");
+                item.className = "p-3 bg-white border border-slate-200 rounded-xl flex items-center justify-between text-sm shadow-sm";
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-700">題目 ${idx + 1}：</span>
+                        <span class="text-slate-600 truncate max-w-[180px]">${q.title.replace(`題目 ${idx + 1}：`, '')}</span>
+                    </div>
+                    <div>${statusBadge}</div>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            modal.classList.remove("hidden");
+            setTimeout(() => {
+                modalContent.classList.remove("scale-95", "opacity-0");
+                modalContent.classList.add("scale-100", "opacity-100");
+            }, 10);
+        }
+
+        function closeRecordModal() {
+            document.getElementById("record-modal").classList.add("hidden");
+        }
+
+        function resetAll() {
+            closeModal();
+            closeRecordModal();
+            score = 0;
+            elapsedTime = 0;
+            isCompleted = false;
+            document.getElementById("score-display").textContent = score;
+            document.getElementById("timer-display").textContent = "00:00";
+
+            userState = questions.map(q => ({
+                stepStatus: q.steps.map(s => ({
+                    unlocked: false,
+                    completed: false,
+                    scored: false,
+                    failed: false,
+                    slotsData: new Array(s.correct.length).fill("")
+                }))
+            }));
+            userState[0].stepStatus[0].unlocked = true;
+            currentQuestionIndex = 0;
+
+            questions.forEach(q => {
+                q.steps.forEach(s => delete s._shuffledOptions);
+            });
+
+            renderNavTabs();
+            renderCurrentQuestion();
+            startTimer();
+        }
+    </script>
+</body>
+</html>
